@@ -762,13 +762,18 @@ async function loadDash(){
     {lbl:'Costo proyectado',      val:fU(costoProyectado),     sub:'Con todo + lo que falta',      cls:'k-gray'},
   ].map(k=>`<div class="kpi ${k.cls}"><div class="lbl">${k.lbl}</div><div class="val">${k.val}</div><div class="sub">${k.sub}</div></div>`).join('');
 
-  var maxR=Math.max(...(d.rubros||[]).map(r=>r.total),1);
-  document.getElementById('barras-rubro').innerHTML=(d.rubros||[]).map(r=>`
-    <div class="bar-row">
-      <span class="bar-lbl">${r.nombre}</span>
-      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(r.total/maxR*100)}%;background:${r.color}"></div></div>
-      <span class="bar-amt">${fU(r.total)}</span>
-    </div>`).join('');
+  // Sort rubros by total desc and assign colors client-side
+  var rubrosOrdenados = (d.rubros||[]).slice().sort(function(a,b){return b.total-a.total;});
+  var maxR = rubrosOrdenados.length ? Math.max.apply(null, rubrosOrdenados.map(function(r){return r.total;})) : 1;
+  document.getElementById('barras-rubro').innerHTML = rubrosOrdenados.map(function(r){
+    var color = RUBRO_COLORS[r.nombre] || '#8896AA';
+    var pct = Math.max(2, Math.round(r.total/maxR*100));
+    return '<div class="bar-row">' +
+      '<span class="bar-lbl">'+r.nombre+'</span>' +
+      '<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:'+color+'"></div></div>' +
+      '<span class="bar-amt">'+fU(r.total)+'</span>' +
+    '</div>';
+  }).join('');
 
   var mesesData=(d.meses&&d.meses.length>0)?d.meses:getDemoData('dashboard').meses;
   document.getElementById('evol-badge').textContent=mesesData.length+' meses';
