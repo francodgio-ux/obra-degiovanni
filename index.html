@@ -1088,7 +1088,7 @@ function nuevoGasto(){
 }
 
 /* ── TRANSACCIONES ── */
-async async function loadTransacciones(forceRefresh) {
+async function loadTransacciones(forceRefresh) {
   if(forceRefresh) delete CACHE['dashboard'];
   document.getElementById('trans-loading').style.display='flex';
   document.getElementById('trans-content').style.display='none';
